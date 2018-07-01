@@ -25,11 +25,18 @@ class Controls extends React.Component {
         ev.preventDefault();
     };
 
+    autoNextGenHandler = ev => {
+        console.log('button clicked!');
+        this.props.autoNextGenFunc();
+        ev.preventDefault();
+    };
+
     render = () => {
         return (<div className='controls'>
             <div className='buttons'>
                 <button onClick={this.nextGenHandler}>Next Generation</button>
                 <button onClick={this.randomGenHandler}>Random</button>
+                <button onClick={this.autoNextGenHandler}>Auto Next Gent</button>
             </div>
         </div>)
     };
@@ -45,17 +52,22 @@ class Board extends React.Component {
         this.totatSize = this.props.size + this.borderSize;
         this.cellRation = 0.2;
         this.state = {
-            cells: []
+            cells: [],
+            alive: true,
+            nextGenInterval: 1000
         };
+        this.autoNextGenInterval;
     }
 
-    componentDidMount() {
-        console.log('mount!');
+    componentDidMount = () => {
         this.initCanvas();
         let cells = this.generateCells();
         this.setState({cells: cells});
-        console.log('inited state');
-    }
+        this.autoNextGenInterval = setInterval(
+            () => this.populateNextGen(),
+            this.state.nextGenInterval
+        );
+    };
 
     componentDidUpdate() {
         console.log('update!');
@@ -151,7 +163,20 @@ class Board extends React.Component {
         this.setState({
             cells: cells
         });
-        this.props.newGenCallback({ empty: true});
+        this.props.newGenCallback({empty: true});
+    };
+
+    autoNextGenFunc = () => {
+        if (this.autoNextGenInterval) {
+            clearInterval(this.autoNextGenInterval);
+            this.autoNextGenInterval = null;
+        }
+        else if (this.state.nextGenInterval > 0) {
+            this.autoNextGenInterval = setInterval(
+                () => this.populateNextGen(),
+                this.state.nextGenInterval
+            );
+        }
     };
 
     render = () => {
@@ -159,7 +184,8 @@ class Board extends React.Component {
         return (<div className='board'>
             <canvas ref="canvas" width={this.totatSize} height={this.totatSize}/>
             <Controls nextGenFunc={this.populateNextGen}
-                      randomGenFunc={this.populateRandomGen}/>
+                      randomGenFunc={this.populateRandomGen}
+                      autoNextGenFunc={this.autoNextGenFunc}/>
         </div>);
     };
 }
