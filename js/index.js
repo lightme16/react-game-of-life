@@ -12,9 +12,10 @@ class Board extends React.Component {
     constructor(props) {
         super(props);
         this.cellSize = 100;
-        this.borderSize = Math.round(this.cellSize * 0.05);
-        this.cellRation = 0.2;
+        this.borderSize = Math.round(this.cellSize * 0.02);
         this.nCell = this.props.size / this.cellSize;
+        this.totatSize = this.props.size + this.borderSize;
+        this.cellRation = 0.2;
         this.state = {
             cells: []
         };
@@ -41,11 +42,9 @@ class Board extends React.Component {
                 let startX = i * this.cellSize;
                 let startY = j * this.cellSize;
                 row.push({
-                    x1: startX,
-                    y1: startY,
-                    x2: startX + this.cellSize,
-                    y2: startY + this.cellSize,
-                    alive: Math.random() > this.cellRation ? true : false
+                    x: startX,
+                    y: startY,
+                    alive: Math.random() > this.cellRation
                 });
             }
             cells.push(row);
@@ -60,13 +59,20 @@ class Board extends React.Component {
             row.forEach(cell => {
                 // draw border;
                 ctx.fillStyle = "black";
-                ctx.fillRect(cell.x1, cell.y1, cell.x2, cell.y2);
+                ctx.fillRect(
+                    cell.x + this.borderSize * 0.5,
+                    cell.y + this.borderSize * 0.5,
+                    this.cellSize,
+                    this.cellSize
+                );
                 // draw cell
                 ctx.fillStyle = cell.alive ? "white" : 'red';
-                ctx.fillRect(cell.x1 + this.borderSize,
-                    cell.y1 + this.borderSize,
-                    cell.x2 - this.borderSize,
-                    cell.y2 - this.borderSize);
+                ctx.fillRect(
+                    cell.x + this.borderSize,
+                    cell.y + this.borderSize,
+                    this.cellSize - this.borderSize,
+                    this.cellSize - this.borderSize
+                );
             })
         );
     };
@@ -96,7 +102,7 @@ class Board extends React.Component {
 
     initCanvas = () => {
         let ctx = this.refs.canvas.getContext("2d");
-        ctx.fillRect(0, 0, this.props.size, this.props.size);
+        ctx.fillRect(0, 0, this.totatSize, this.totatSize);
     }
 
     updateCanvas = () => {
@@ -106,7 +112,7 @@ class Board extends React.Component {
 
     nextGenHandler = ev => {
         console.log('button clicked!');
-        this.props.newGenCallback()
+        this.props.newGenCallback();
         ev.preventDefault();
         let cells = this.nextGen(this.state.cells);
         console.log('next cells');
@@ -127,7 +133,7 @@ class Board extends React.Component {
     render = () => {
         console.log(this.state);
         return (<div className='board'>
-            <canvas ref="canvas" width={this.props.size} height={this.props.size} />
+            <canvas ref="canvas" width={this.totatSize} height={this.totatSize}/>
             <div className='controls'>
                 <button onClick={this.nextGenHandler}>Next Generation</button>
                 <button onClick={this.randomGenHandler}>Random</button>
@@ -162,7 +168,7 @@ class Game extends React.Component {
 
 ReactDOM.render(
     <div>
-        <Game />
+        <Game/>
     </div>,
     document.getElementById("root")
 );
