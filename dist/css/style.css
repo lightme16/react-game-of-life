@@ -9,6 +9,10 @@ body {
 
 h1 {
   text-align: center;
+  color: #27ae60;
+  border-bottom-style: solid;
+  padding: 10px;
+  font-size: 3em;
 }
 
 .display {
