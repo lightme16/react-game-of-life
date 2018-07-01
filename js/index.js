@@ -151,6 +151,7 @@ class Board extends React.Component {
         this.setState({
             cells: cells
         });
+        this.props.newGenCallback({ empty: true});
     };
 
     render = () => {
@@ -172,9 +173,9 @@ class Game extends React.Component {
         }
     };
 
-    updateGenNumber = () => {
-        this.setState({genN: this.state.genN + 1});
-    }
+    updateGenNumber = (reset = false) => {
+        this.setState({genN: reset ? 0 : this.state.genN + 1});
+    };
 
     render = () => {
         return (
