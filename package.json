@@ -4,11 +4,18 @@
   "description": "A Pen created at CodePen.io. You can find this one at https://codepen.io/BassJuzz/pen/wXQNrR.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "babel": "babel js/index.js --out-dir dist --source-maps"
   },
   "author": "Alexander Zveruk",
   "license": "ISC",
   "devDependencies": {
-    "babel-cli": "^6.26.0"
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1"
+  },
+  "dependencies": {
+    "babel-preset-env": "^1.7.0"
   }
 }
