@@ -44,7 +44,7 @@ class Board extends React.Component {
                 row.push({
                     x: startX,
                     y: startY,
-                    alive: Math.random() > this.cellRation
+                    alive: Math.random() < this.cellRation
                 });
             }
             cells.push(row);
@@ -58,7 +58,7 @@ class Board extends React.Component {
         cells.forEach(row =>
             row.forEach(cell => {
                 // draw border;
-                ctx.fillStyle = "black";
+                ctx.fillStyle = "#212121";
                 ctx.fillRect(
                     cell.x + this.borderSize * 0.5,
                     cell.y + this.borderSize * 0.5,
@@ -66,7 +66,7 @@ class Board extends React.Component {
                     this.cellSize
                 );
                 // draw cell
-                ctx.fillStyle = cell.alive ? "white" : 'red';
+                ctx.fillStyle = cell.alive ? "#27ae60" : '#ecf0f1';
                 ctx.fillRect(
                     cell.x + this.borderSize,
                     cell.y + this.borderSize,
