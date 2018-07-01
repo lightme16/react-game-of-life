@@ -15,5 +15,26 @@ h1 {
   font-size: 3em;
 }
 
+canvas {
+  margin-bottom: 20px;
+}
+
+.controls{
+  margin: auto;
+  width: 300px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  margin: 1px;
+}
+
 .display {
+  text-align: center;
+  margin: 15px;
+  color: #27ae60;
 }

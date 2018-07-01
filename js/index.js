@@ -4,9 +4,37 @@ class Display extends React.Component {
     }
 
     render = () => {
-        return <div className='display'>This is {this.props.genN} generation</div>;
+        return <div className='display'><h2>This is {this.props.genN} generation</h2></div>;
     };
 }
+
+class Controls extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    nextGenHandler = ev => {
+        console.log('button clicked!');
+        this.props.nextGenFunc();
+        ev.preventDefault();
+    };
+
+    randomGenHandler = ev => {
+        console.log('button clicked!');
+        this.props.randomGenFunc();
+        ev.preventDefault();
+    };
+
+    render = () => {
+        return (<div className='controls'>
+            <div className='buttons'>
+                <button onClick={this.nextGenHandler}>Next Generation</button>
+                <button onClick={this.randomGenHandler}>Random</button>
+            </div>
+        </div>)
+    };
+}
+
 
 class Board extends React.Component {
     constructor(props) {
@@ -103,41 +131,34 @@ class Board extends React.Component {
     initCanvas = () => {
         let ctx = this.refs.canvas.getContext("2d");
         ctx.fillRect(0, 0, this.totatSize, this.totatSize);
-    }
+    };
 
     updateCanvas = () => {
         let ctx = this.refs.canvas.getContext("2d");
         this.drawCells(ctx, this.state.cells);
     };
 
-    nextGenHandler = ev => {
-        console.log('button clicked!');
-        this.props.newGenCallback();
-        ev.preventDefault();
+    populateNextGen = () => {
         let cells = this.nextGen(this.state.cells);
-        console.log('next cells');
-        console.log(cells);
         this.setState({
             cells: cells
         });
-    }
+        this.props.newGenCallback();
+    };
 
-    randomGenHandler = ev => {
-        ev.preventDefault();
+    populateRandomGen = () => {
         let cells = this.generateCells();
         this.setState({
             cells: cells
         });
-    }
+    };
 
     render = () => {
         console.log(this.state);
         return (<div className='board'>
             <canvas ref="canvas" width={this.totatSize} height={this.totatSize}/>
-            <div className='controls'>
-                <button onClick={this.nextGenHandler}>Next Generation</button>
-                <button onClick={this.randomGenHandler}>Random</button>
-            </div>
+            <Controls nextGenFunc={this.populateNextGen}
+                      randomGenFunc={this.populateRandomGen}/>
         </div>);
     };
 }
