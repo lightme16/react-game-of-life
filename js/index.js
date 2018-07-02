@@ -47,7 +47,7 @@ class Board extends React.Component {
         this.updateCanvas();
     }
 
-    generateCells = () => {
+    generateCells = (empty = false) => {
         let cells = [];
         for (let i = 0; i < this.nCell; i++) {
             let row = [];
@@ -57,7 +57,7 @@ class Board extends React.Component {
                 row.push({
                     x: startX,
                     y: startY,
-                    alive: Math.random() < this.cellRation
+                    alive: empty ? false : Math.random() < this.cellRation
                 });
             }
             cells.push(row);
@@ -180,20 +180,26 @@ class Board extends React.Component {
         }
     };
 
+    clearCells = () => {
+        let emptyCells = this.generateCells({empty: true});
+        this.setState({
+            cells: emptyCells,
+            gameFinished: false
+        })
+    };
+
     canvasClick = (ev) => {
         const {x, y} = getCursorPosition(this.refs.canvas, ev);
-        if (!this.state.gameFinished) {
-            for (let i = 0; i < this.nCell; i++) {
-                for (let j = 0; j < this.nCell; j++) {
-                    let cell = this.state.cells[i][j];
-                    if (x > cell.x && x < cell.x + this.cellSize &&
-                        y > cell.y && y < cell.y + this.cellSize) {
-                        cell.alive = !cell.alive ;
-                    }
+        for (let i = 0; i < this.nCell; i++) {
+            for (let j = 0; j < this.nCell; j++) {
+                let cell = this.state.cells[i][j];
+                if (x > cell.x && x < cell.x + this.cellSize &&
+                    y > cell.y && y < cell.y + this.cellSize) {
+                    cell.alive = !cell.alive;
                 }
             }
-            this.setState({cells: this.state.cells});
         }
+        this.setState({cells: this.state.cells});
     };
 
     render = () => {
@@ -207,6 +213,7 @@ class Board extends React.Component {
                     <button onClick={this.autoNextGenFunc}>{this.state.autoNextEnabled ? 'Disable' : 'Enable'} auto next
                         generation
                     </button>
+                    <button onClick={this.clearCells}>Clear</button>
                 </div>
                 <h3>Game is {this.state.gameFinished ? 'finished' : 'continuing'}!</h3>
             </div>
