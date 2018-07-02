@@ -18,9 +18,9 @@ class Board extends React.Component {
         this.cellRation = 0.2;
         this.state = {
             cells: [],
-            alive: true,
             nextGenInterval: 1000,
-            autoNextEnabled: true
+            autoNextEnabled: true,
+            gameFinished: false
         };
         this.autoNextGenInterval;
     }
@@ -84,7 +84,9 @@ class Board extends React.Component {
     };
 
     nextGen = cells => {
+        let newCells = [];
         for (let i = 0; i < this.nCell; i++) {
+            let rows = [];
             for (let j = 0; j < this.nCell; j++) {
                 let neighbours = [];
                 for (let iCell = Math.max(i - 1, 0); iCell < i + 2 && iCell < this.nCell; iCell++) {
@@ -96,14 +98,24 @@ class Board extends React.Component {
                     }
                 }
                 let nNeighbours = neighbours.filter(cell => cell.alive).length;
-                console.log(neighbours);
                 console.log(`has ${nNeighbours}! neighbours`);
-                if (nNeighbours == 3) cells[i][j].alive = true;
+
+                let alive;
+                if (nNeighbours === 3)
+                    alive = true;
                 else if (nNeighbours < 2 || nNeighbours > 3)
-                    cells[i][j].alive = false;
+                    alive = false;
+                else
+                    alive = cells[i][j].alive;
+                let newCell = {};
+                Object.keys(cells[i][j]).forEach(key => newCell[key] = cells[i][j][key]);
+                newCell.alive = alive;
+                rows.push(newCell)
+
             }
+            newCells.push(rows)
         }
-        return cells;
+        return newCells;
     };
 
     initCanvas = () => {
@@ -118,16 +130,30 @@ class Board extends React.Component {
 
     populateNextGen = () => {
         let cells = this.nextGen(this.state.cells);
-        this.setState({
-            cells: cells
-        });
-        this.props.newGenCallback();
+        // no changes in the new generation, so assuming that game finished
+        if (JSON.stringify(this.state.cells) === JSON.stringify(cells)) {
+            this.setState({
+                gameFinished: true,
+                autoNextEnabled: false
+            });
+            clearInterval(this.autoNextGenInterval);
+            this.autoNextGenInterval = null;
+
+        }
+        else {
+            this.setState({
+                cells: cells,
+            });
+            this.props.newGenCallback();
+        }
+
     };
 
     populateRandomGen = () => {
         let cells = this.generateCells();
         this.setState({
-            cells: cells
+            cells: cells,
+            gameFinished: false
         });
         this.props.newGenCallback({empty: true});
     };
@@ -155,8 +181,11 @@ class Board extends React.Component {
                 <div className='buttons'>
                     <button onClick={this.populateNextGen}>Next Generation</button>
                     <button onClick={this.populateRandomGen}>Random</button>
-                    <button onClick={this.autoNextGenFunc}>{this.state.autoNextEnabled ? 'Disable' : 'Enable'} auto next generation</button>
+                    <button onClick={this.autoNextGenFunc}>{this.state.autoNextEnabled ? 'Disable' : 'Enable'} auto next
+                        generation
+                    </button>
                 </div>
+                <h3>Game is {this.state.gameFinished ? 'finished' : 'continuing'}!</h3>
             </div>
         </div>);
     };
