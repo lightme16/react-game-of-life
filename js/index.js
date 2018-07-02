@@ -1,3 +1,10 @@
+function getCursorPosition(canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+    return {x, y}
+}
+
 class Display extends React.Component {
     constructor(props) {
         super(props);
@@ -173,10 +180,26 @@ class Board extends React.Component {
         }
     };
 
+    canvasClick = (ev) => {
+        const {x, y} = getCursorPosition(this.refs.canvas, ev);
+        if (!this.state.gameFinished) {
+            for (let i = 0; i < this.nCell; i++) {
+                for (let j = 0; j < this.nCell; j++) {
+                    let cell = this.state.cells[i][j];
+                    if (x > cell.x && x < cell.x + this.cellSize &&
+                        y > cell.y && y < cell.y + this.cellSize) {
+                        cell.alive = !cell.alive ;
+                    }
+                }
+            }
+            this.setState({cells: this.state.cells});
+        }
+    };
+
     render = () => {
         console.log(this.state);
         return (<div className='board'>
-            <canvas ref="canvas" width={this.totatSize} height={this.totatSize}/>
+            <canvas ref="canvas" width={this.totatSize} height={this.totatSize} onClick={this.canvasClick}/>
             <div className='controls'>
                 <div className='buttons'>
                     <button onClick={this.populateNextGen}>Next Generation</button>
