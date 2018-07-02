@@ -8,41 +8,6 @@ class Display extends React.Component {
     };
 }
 
-class Controls extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    nextGenHandler = ev => {
-        console.log('button clicked!');
-        this.props.nextGenFunc();
-        ev.preventDefault();
-    };
-
-    randomGenHandler = ev => {
-        console.log('button clicked!');
-        this.props.randomGenFunc();
-        ev.preventDefault();
-    };
-
-    autoNextGenHandler = ev => {
-        console.log('button clicked!');
-        this.props.autoNextGenFunc();
-        ev.preventDefault();
-    };
-
-    render = () => {
-        return (<div className='controls'>
-            <div className='buttons'>
-                <button onClick={this.nextGenHandler}>Next Generation</button>
-                <button onClick={this.randomGenHandler}>Random</button>
-                <button onClick={this.autoNextGenHandler}>Auto Next Gent</button>
-            </div>
-        </div>)
-    };
-}
-
-
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -54,7 +19,8 @@ class Board extends React.Component {
         this.state = {
             cells: [],
             alive: true,
-            nextGenInterval: 1000
+            nextGenInterval: 1000,
+            autoNextEnabled: true
         };
         this.autoNextGenInterval;
     }
@@ -170,12 +136,14 @@ class Board extends React.Component {
         if (this.autoNextGenInterval) {
             clearInterval(this.autoNextGenInterval);
             this.autoNextGenInterval = null;
+            this.setState({autoNextEnabled: false});
         }
         else if (this.state.nextGenInterval > 0) {
             this.autoNextGenInterval = setInterval(
                 () => this.populateNextGen(),
                 this.state.nextGenInterval
             );
+            this.setState({autoNextEnabled: true});
         }
     };
 
@@ -183,9 +151,13 @@ class Board extends React.Component {
         console.log(this.state);
         return (<div className='board'>
             <canvas ref="canvas" width={this.totatSize} height={this.totatSize}/>
-            <Controls nextGenFunc={this.populateNextGen}
-                      randomGenFunc={this.populateRandomGen}
-                      autoNextGenFunc={this.autoNextGenFunc}/>
+            <div className='controls'>
+                <div className='buttons'>
+                    <button onClick={this.populateNextGen}>Next Generation</button>
+                    <button onClick={this.populateRandomGen}>Random</button>
+                    <button onClick={this.autoNextGenFunc}>{this.state.autoNextEnabled ? 'Disable' : 'Enable'} auto next generation</button>
+                </div>
+            </div>
         </div>);
     };
 }
@@ -200,7 +172,7 @@ class Game extends React.Component {
     };
 
     updateGenNumber = (reset = false) => {
-        this.setState({genN: reset ? 0 : this.state.genN + 1});
+        this.setState({genN: reset ? 1 : this.state.genN + 1});
     };
 
     render = () => {
