@@ -1,3 +1,6 @@
+import './style.css';
+
+
 function getCursorPosition(canvas, event) {
     var rect = canvas.getBoundingClientRect();
     var x = event.clientX - rect.left;
