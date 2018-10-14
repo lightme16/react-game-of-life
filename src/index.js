@@ -14,7 +14,10 @@ class Display extends React.Component {
     }
 
     render = () => {
-        return <div className='display'><h2>This is {this.props.genN} generation</h2></div>;
+        return (<div className='display'>
+            <h2>This is {this.props.genN} generation.
+                {this.props.finished && ' Game is finished!'}</h2>
+        </div>)
     };
 }
 
@@ -140,23 +143,23 @@ class Board extends React.Component {
 
     populateNextGen = () => {
         let cells = this.nextGen(this.state.cells);
+        let gameFinished = false;
         // no changes in the new generation, so assuming that game finished
         if (JSON.stringify(this.state.cells) === JSON.stringify(cells)) {
+            gameFinished = true;
             this.setState({
                 gameFinished: true,
                 autoNextEnabled: false
             });
             clearInterval(this.autoNextGenInterval);
             this.autoNextGenInterval = null;
-
         }
         else {
             this.setState({
                 cells: cells,
             });
-            this.props.newGenCallback();
         }
-
+        this.props.newGenCallback({finished: gameFinished});
     };
 
     populateRandomGen = () => {
@@ -165,7 +168,7 @@ class Board extends React.Component {
             cells: cells,
             gameFinished: false
         });
-        this.props.newGenCallback({empty: true});
+        this.props.newGenCallback({reset: true});
     };
 
     autoNextGenFunc = () => {
@@ -206,7 +209,6 @@ class Board extends React.Component {
     };
 
     render = () => {
-        console.log(this.state);
         return (<div className='board'>
             <canvas ref="canvas" width={this.totatSize} height={this.totatSize} onClick={this.canvasClick}/>
             <div className='controls'>
@@ -218,7 +220,6 @@ class Board extends React.Component {
                     </button>
                     <button onClick={this.clearCells}>Clear</button>
                 </div>
-                <h3>Game is {this.state.gameFinished ? 'finished' : 'continuing'}!</h3>
             </div>
         </div>);
     };
@@ -229,12 +230,16 @@ class Game extends React.Component {
 
         super(props);
         this.state = {
-            genN: 1
+            genN: 1,
+            finished: false
         }
     };
 
-    updateGenNumber = (reset = false) => {
-        this.setState({genN: reset ? 1 : this.state.genN + 1});
+    updateGenNumber = ({reset = false, finished = false}={}) => {
+        this.setState({
+            genN: reset ? 1 : this.state.genN + 1,
+            finished: finished
+        });
     };
 
     render = () => {
@@ -242,7 +247,7 @@ class Game extends React.Component {
             <div className='game'>
                 <h1>Game of Life</h1>
                 <Board size={700} newGenCallback={this.updateGenNumber}/>
-                <Display genN={this.state.genN}/>
+                <Display genN={this.state.genN} finished={this.state.finished}/>
             </div>
         );
     };

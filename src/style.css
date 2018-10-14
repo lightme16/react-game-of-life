@@ -21,16 +21,18 @@ canvas {
 
 .controls{
   margin: auto;
-  width: 300px;
 }
 
 .buttons {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 button {
   margin: 1px;
+  width: 200px;
+  height: 50px;
+  border-radius: 5%;
 }
 
 .display {
