@@ -23,20 +23,71 @@ canvas {
   margin: auto;
 }
 
-.buttons {
-  display: flex;
-  flex-direction: row;
-}
 
-button {
-  margin: 1px;
-  width: 200px;
-  height: 50px;
-  border-radius: 5%;
-}
-
-.display {
+.buttons button {
+  width: 33%;
+  background-color: #ACCBE1;
+  border: 1px solid #7C98B3;
+  color:  #2c3e50;
+  padding: 15px 32px;
   text-align: center;
-  margin: 15px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  float: left;
+}
+.buttons button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+.buttons button:hover {
+  background-color: #3e8e41;
+}
+
+h2 {
+  text-align: center;
+  margin-top: -20px;
+  margin-bottom: 10px;
   color: #27ae60;
+}
+
+.slider-text {
+  display: inline-block;
+  text-align: right;
+  position: relative;
+  top: -6px;
+}
+
+
+.slider {
+  -webkit-appearance: none;
+  width: 75%;
+  height: 25px;
+  margin-left: 12px;
+  margin-top: 0;
+  background: #ACCBE1;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: #4CAF50;
+  cursor: pointer;
 }

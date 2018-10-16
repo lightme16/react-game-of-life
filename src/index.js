@@ -1,5 +1,7 @@
 import './style.css';
 
+const MIN_GAME_SPEED = 300;
+const DEFAULT_GAME_SPEED = 1000;
 
 function getCursorPosition(canvas, event) {
     var rect = canvas.getBoundingClientRect();
@@ -15,7 +17,7 @@ class Display extends React.Component {
 
     render = () => {
         return (<div className='display'>
-            <h2>This is {this.props.genN} generation.
+            <h2>{this.props.genN} generation
                 {this.props.finished && ' Game is finished!'}</h2>
         </div>)
     };
@@ -24,15 +26,14 @@ class Display extends React.Component {
 class Board extends React.Component {
     constructor(props) {
         super(props);
-        this.cellSize = 100;
+        this.cellSize = 35;
         this.borderSize = Math.round(this.cellSize * 0.02);
         this.nCell = this.props.size / this.cellSize;
         this.totatSize = this.props.size + this.borderSize;
         this.cellRation = 0.2;
         this.state = {
             cells: [],
-            nextGenInterval: 1000,
-            autoNextEnabled: true,
+            nextGenSpeed: DEFAULT_GAME_SPEED,
             gameFinished: false
         };
         this.autoNextGenInterval;
@@ -44,13 +45,18 @@ class Board extends React.Component {
         this.setState({cells: cells});
         this.autoNextGenInterval = setInterval(
             () => this.populateNextGen(),
-            this.state.nextGenInterval
+            DEFAULT_GAME_SPEED
         );
     };
 
     componentDidUpdate() {
-        console.log('update!');
-        this.updateCanvas();
+        if (this.state.gameFinished) {
+            clearInterval(this.autoNextGenInterval);
+        }
+        else {
+            this.updateCanvas();
+            this.updateGameSpeed(this.state.nextGenSpeed);
+        }
     }
 
     generateCells = (empty = false) => {
@@ -68,12 +74,10 @@ class Board extends React.Component {
             }
             cells.push(row);
         }
-        console.log(cells);
         return cells;
     };
 
     drawCells = (ctx, cells) => {
-        console.log('draw cells');
         cells.forEach(row =>
             row.forEach(cell => {
                 // draw border;
@@ -111,7 +115,6 @@ class Board extends React.Component {
                     }
                 }
                 let nNeighbours = neighbours.filter(cell => cell.alive).length;
-                console.log(`has ${nNeighbours}! neighbours`);
 
                 let alive;
                 if (nNeighbours === 3)
@@ -147,11 +150,7 @@ class Board extends React.Component {
         // no changes in the new generation, so assuming that game finished
         if (JSON.stringify(this.state.cells) === JSON.stringify(cells)) {
             gameFinished = true;
-            this.setState({
-                gameFinished: true,
-                autoNextEnabled: false
-            });
-            clearInterval(this.autoNextGenInterval);
+            this.setState({gameFinished: true});
             this.autoNextGenInterval = null;
         }
         else {
@@ -171,27 +170,18 @@ class Board extends React.Component {
         this.props.newGenCallback({reset: true});
     };
 
-    autoNextGenFunc = () => {
-        if (this.autoNextGenInterval) {
-            clearInterval(this.autoNextGenInterval);
-            this.autoNextGenInterval = null;
-            this.setState({autoNextEnabled: false});
-        }
-        else if (this.state.nextGenInterval > 0) {
+    updateGameSpeed = (newGameSpeed) => {
+        clearInterval(this.autoNextGenInterval);
+        if (newGameSpeed !== 0 && !this.state.gameFinished) {
             this.autoNextGenInterval = setInterval(
                 () => this.populateNextGen(),
-                this.state.nextGenInterval
-            );
-            this.setState({autoNextEnabled: true});
-        }
+                Math.max(newGameSpeed, MIN_GAME_SPEED)
+            );}
     };
 
     clearCells = () => {
         let emptyCells = this.generateCells({empty: true});
-        this.setState({
-            cells: emptyCells,
-            gameFinished: false
-        })
+        this.setState({cells: emptyCells});
     };
 
     canvasClick = (ev) => {
@@ -212,12 +202,15 @@ class Board extends React.Component {
         return (<div className='board'>
             <canvas ref="canvas" width={this.totatSize} height={this.totatSize} onClick={this.canvasClick}/>
             <div className='controls'>
+                <div className='slidecontainer'>
+                    <h2 className='slider-text'> Game speed: </h2>
+                    <input className='slider' type='range' min='0' max='2' step='0.1'
+                           defaultValue={this.state.nextGenSpeed / 1000}
+                           onChange={(ev) => this.setState({nextGenSpeed: ev.target.value * 1000})}/>
+                </div>
                 <div className='buttons'>
                     <button onClick={this.populateNextGen}>Next Generation</button>
                     <button onClick={this.populateRandomGen}>Random</button>
-                    <button onClick={this.autoNextGenFunc}>{this.state.autoNextEnabled ? 'Disable' : 'Enable'} auto next
-                        generation
-                    </button>
                     <button onClick={this.clearCells}>Clear</button>
                 </div>
             </div>
@@ -246,8 +239,8 @@ class Game extends React.Component {
         return (
             <div className='game'>
                 <h1>Game of Life</h1>
-                <Board size={700} newGenCallback={this.updateGenNumber}/>
                 <Display genN={this.state.genN} finished={this.state.finished}/>
+                <Board size={700} newGenCallback={this.updateGenNumber}/>
             </div>
         );
     };
